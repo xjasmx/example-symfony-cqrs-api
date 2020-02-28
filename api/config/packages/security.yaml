@@ -1,0 +1,38 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        fetcher:
+            id: App\Infrastructure\IdentityAccess\Access\Authorization\UserProvider
+    encoders:
+        App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentity: native
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        api_token:
+            pattern: ^/token$
+            security: false
+        api:
+            pattern: ^/api/v1
+            security: true
+            anonymous: lazy
+            stateless: true
+            oauth2: true
+        main:
+            anonymous: lazy
+            user_checker: App\Infrastructure\IdentityAccess\Access\Authorization\UserChecker
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/api/v1/?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/signup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/confirm, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/oauth, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }

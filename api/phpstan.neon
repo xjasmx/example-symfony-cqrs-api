@@ -1,0 +1,10 @@
+parameters:
+    checkMissingIterableValueType: false
+    excludes_analyse:
+        - src/Infrastructure/Share/Persistence/Migrations/*
+        - tests/*
+    symfony:
+        container_xml_path: '%rootDir%/../../../var/cache/dev/App_Infrastructure_KernelDevDebugContainer.xml'
+        console_application_loader: build/phpstan/console-loader.php
+    doctrine:
+        objectManagerLoader: build/phpstan/doctrine-orm-bootstrap.php

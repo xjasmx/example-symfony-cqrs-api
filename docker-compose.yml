@@ -1,0 +1,102 @@
+version: '3'
+services:
+  frontend-nginx:
+    build:
+      context: ./frontend/docker
+      dockerfile: nginx.docker
+    volumes:
+      - ./frontend:/var/www/frontend
+    depends_on:
+      - api-php-fpm
+    ports:
+      - "8080:80"
+  frontend-node:
+    build:
+      context: ./frontend/docker
+      dockerfile: node.docker
+    volumes:
+      - ./frontend:/var/www/frontend
+    working_dir: /var/www/frontend
+    tty: true
+
+  api-nginx:
+    build:
+      context: ./api/docker/development
+      dockerfile: nginx.docker
+    volumes:
+      - ./api:/var/www/api
+    depends_on:
+      - api-php-fpm
+    ports:
+      - "8081:80"
+    networks:
+      - internal
+  api-php-fpm:
+    build:
+      context: ./api/docker/development
+      dockerfile: php-fpm.docker
+    environment:
+      XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1"
+      PHP_IDE_CONFIG: serverName=Docker
+    volumes:
+      - ./api:/var/www/api
+      - ./storage:/var/www/storage
+    depends_on:
+      - api-postgres
+      - mailer
+    networks:
+      - internal
+  api-php-cli:
+    build:
+      context: ./api/docker/development
+      dockerfile: php-cli.docker
+    volumes:
+      - ./api:/var/www/api
+      - ./storage:/var/www/storage
+      - composer:/root/.composer/cache
+    depends_on:
+      - api-postgres
+      - mailer
+    networks:
+      - internal
+  api-postgres:
+    image: postgres:12.1-alpine
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: app
+    ports:
+      - "54321:5432"
+    networks:
+      - internal
+
+  mailer:
+    image: mailhog/mailhog
+    ports:
+      - "8082:8025"
+    networks:
+      - internal
+
+  storage-nginx:
+    build:
+      context: ./storage/docker
+      dockerfile: nginx.docker
+    volumes:
+      - ./storage:/var/www/storage
+    ports:
+      - "8083:80"
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.220.0/28
+
+volumes:
+  api-postgres:
+  composer:

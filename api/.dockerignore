@@ -1,0 +1,4 @@
+/.idea
+/vendor
+/var/.phplint.json
+/var/.phpcs.json

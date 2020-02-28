@@ -1,0 +1,7 @@
+FROM node:12.13.0-alpine
+
+WORKDIR /var/www/frontend
+
+VOLUME ["/var/www/frontend"]
+
+RUN npm install -g @vue/cli

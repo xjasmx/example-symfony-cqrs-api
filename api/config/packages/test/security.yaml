@@ -1,0 +1,11 @@
+security:
+    encoders:
+        App\Infrastructure\User\Security\UserIdentity: native
+    firewalls:
+        api:
+            pattern: ^/api/v1
+            oauth2: false
+            http_basic:
+                provider: fetcher
+        main:
+            http_basic: ~
