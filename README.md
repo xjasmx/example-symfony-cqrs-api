@@ -1,4 +1,4 @@
-Symfony 4 CQRS/DDD example
+Symfony 5 CQRS/DDD example
 =====================
 
 A simple video management application for training, based on Symfony 5, php 7.4 and implemented in CQRS as part of the tactical DDD approach
