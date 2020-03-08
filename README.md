@@ -14,7 +14,7 @@ A simple video management application for training, based on Symfony 5, php 7.4 
 
 Clone the project
 ```bash
-$ https://github.com/xjasmx/symfony-ddd-example.git && cd symfony-ddd-example
+$ git clone https://github.com/xjasmx/symfony-ddd-example.git && cd symfony-ddd-example
 ```
 
 ### For docker developers
