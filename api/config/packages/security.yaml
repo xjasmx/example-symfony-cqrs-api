@@ -4,7 +4,7 @@ security:
         fetcher:
             id: App\Infrastructure\IdentityAccess\Access\Authorization\UserProvider
     encoders:
-        App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentity: native
+        App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentityByEmail: native
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

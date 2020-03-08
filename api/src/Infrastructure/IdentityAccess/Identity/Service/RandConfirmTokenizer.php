@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Identity\Service;
 
-use App\Domain\IdentityAccess\Identity\Entity\ConfirmationToken;
+use App\Domain\IdentityAccess\Identity\ValueObject\ConfirmationToken;
 use App\Domain\IdentityAccess\Identity\Service\ConfirmTokenizerInterface;
+use App\Domain\Shared\ValueObject\DateTime;
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
@@ -32,7 +33,9 @@ class RandConfirmTokenizer implements ConfirmTokenizerInterface
     {
         return new ConfirmationToken(
             Uuid::uuid4()->toString(),
-            (new DateTimeImmutable())->add(new  DateInterval($this->interval))
+            DateTime::fromString(
+                (new DateTimeImmutable())->add(new  DateInterval($this->interval))->format(DateTime::FORMAT)
+            )
         );
     }
 }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\IdentityAccess\Identity\Event;
 
-use App\Domain\IdentityAccess\Identity\Entity\Name;
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
+use App\Domain\IdentityAccess\Identity\ValueObject\Name;
+use App\Domain\IdentityAccess\Identity\ValueObject\UserId;
 use App\Domain\Shared\Event\AggregateId;
 use App\Domain\Shared\Event\DomainEvent;
 

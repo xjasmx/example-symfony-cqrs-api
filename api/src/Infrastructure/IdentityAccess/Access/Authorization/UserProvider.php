@@ -4,36 +4,36 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Access\Authorization;
 
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\ReadModel\UserQueryRepositoryInterface;
-use App\Domain\IdentityAccess\Identity\ReadModel\UserView;
+use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
+use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
+use App\Domain\IdentityAccess\Identity\ValueObject\UserId;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserProvider implements UserProviderInterface
 {
-    private UserQueryRepositoryInterface $repository;
+    private UserRepositoryInterface $repository;
 
     /**
      * UserProvider constructor.
-     * @param UserQueryRepositoryInterface $repository
+     * @param UserRepositoryInterface $repository
      */
-    public function __construct(UserQueryRepositoryInterface $repository)
+    public function __construct(UserRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
 
     /**
      * @inheritDoc
+     * @throws UserNotFoundException
      */
     public function loadUserByUsername(string $username): UserInterface
     {
-        /** @var UserView $user */
         $user = $this->repository->userOfId(UserId::fromString($username));
 
         if (($email = $user->getEmail())) {
-            return new UserIdentity(
+            return new UserIdentityByEmail(
                 $user->getId(),
                 $email,
                 $user->getPassword(),
@@ -46,6 +46,7 @@ class UserProvider implements UserProviderInterface
 
     /**
      * @inheritDoc
+     * @throws UserNotFoundException
      */
     public function refreshUser(UserInterface $user): UserInterface
     {
@@ -57,6 +58,6 @@ class UserProvider implements UserProviderInterface
      */
     public function supportsClass(string $class): bool
     {
-        return UserIdentity::class === $class;
+        return UserIdentityByEmail::class === $class;
     }
 }

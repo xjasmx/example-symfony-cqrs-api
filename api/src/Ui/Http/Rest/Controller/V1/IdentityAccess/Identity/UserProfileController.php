@@ -10,19 +10,19 @@ use App\Application\IdentityAccess\Identity\Command\User\ChangeUserNameCommand;
 use App\Application\IdentityAccess\Identity\Command\User\ChangeUserNameHandler;
 use App\Application\IdentityAccess\Identity\Command\User\ChangeUserPasswordCommand;
 use App\Application\IdentityAccess\Identity\Command\User\ChangeUserPasswordHandler;
-use App\Application\IdentityAccess\Identity\Query\User\GetUserCredentialFindByIdHandler;
 use App\Application\IdentityAccess\Identity\Query\User\GetUserCredentialFindByIdQuery;
+use App\Application\IdentityAccess\Identity\Query\User\GetUserDetailsHandler;
+use App\Application\IdentityAccess\Identity\Query\User\UserDetailsView;
 use App\Domain\IdentityAccess\Identity\Exception\InvalidCredentialsException;
 use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
-use App\Domain\IdentityAccess\Identity\ReadModel\UserProfileView;
-use App\Domain\IdentityAccess\Identity\ReadModel\UserView;
-use App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentity;
+use App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentityByEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Doctrine\DBAL\DBALException;
 
 /**
  * @Route("/profile")
@@ -46,12 +46,14 @@ class UserProfileController extends AbstractController
      *     name="user_profile",
      *     methods={"GET"}
      * )
-     * @param GetUserCredentialFindByIdHandler $handler
+     * @param GetUserDetailsHandler $handler
      * @return Response
+     * @throws UserNotFoundException
+     * @throws DBALException
      */
-    public function show(GetUserCredentialFindByIdHandler $handler): Response
+    public function show(GetUserDetailsHandler $handler): Response
     {
-        /** @var UserIdentity|null $user */
+        /** @var UserIdentityByEmail|null $user */
         $user = $this->getUser();
         if (!$user) {
             throw new InvalidCredentialsException('User not found');
@@ -59,7 +61,7 @@ class UserProfileController extends AbstractController
 
         $query = new GetUserCredentialFindByIdQuery((string)$user->getId());
 
-        /** @var UserProfileView $user */
+        /** @var UserDetailsView $user */
         $user = $handler->handle($query);
 
         return $this->json(

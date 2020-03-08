@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Identity\Persistence\DoctrineType;
 
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
+use App\Domain\IdentityAccess\Identity\ValueObject\UserId;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\GuidType;
 
 class UserIdType extends GuidType
 {
-    public const NAME = 'user_user_id';
-
     /**
      * @param mixed $value
      * @param AbstractPlatform $platform
@@ -30,14 +28,6 @@ class UserIdType extends GuidType
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return !empty($value) ? UserId::fromString($value) : null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     /**

@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace App\Application\IdentityAccess\Identity\Command\User;
 
-use App\Domain\IdentityAccess\Identity\Entity\Email;
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
-use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
-use App\Domain\IdentityAccess\Identity\Specification\UserUniqueEmailSpecificationInterface;
+use App\Domain\IdentityAccess\Identity\{
+    Exception\UserNotFoundException,
+    Repository\UserRepositoryInterface,
+    Service\UserUniquenessCheckerByEmailInterface,
+    ValueObject\Email,
+    ValueObject\UserId
+};
 
 class ChangeUserEmailHandler
 {
     private UserRepositoryInterface $repository;
-    private UserUniqueEmailSpecificationInterface $uniqueEmailSpecification;
+    private UserUniquenessCheckerByEmailInterface $checker;
 
     /**
      * ChangeEmailHandler constructor.
      * @param UserRepositoryInterface $repository
-     * @param UserUniqueEmailSpecificationInterface $uniqueEmailSpecification
+     * @param UserUniquenessCheckerByEmailInterface $checker
      */
     public function __construct(
         UserRepositoryInterface $repository,
-        UserUniqueEmailSpecificationInterface $uniqueEmailSpecification
+        UserUniquenessCheckerByEmailInterface $checker
     ) {
         $this->repository = $repository;
-        $this->uniqueEmailSpecification = $uniqueEmailSpecification;
+        $this->checker = $checker;
     }
 
     /**
@@ -35,7 +37,7 @@ class ChangeUserEmailHandler
     public function handle(ChangeUserEmailCommand $command): void
     {
         $user = $this->repository->userOfId(UserId::fromString($command->id));
-        $user->changeEmail(Email::fromString($command->email), $this->uniqueEmailSpecification);
+        $user->changeEmail(Email::fromString($command->email), $this->checker);
 
         $this->repository->add($user);
     }

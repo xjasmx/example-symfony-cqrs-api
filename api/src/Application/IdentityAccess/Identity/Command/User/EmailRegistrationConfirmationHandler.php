@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Application\IdentityAccess\Identity\Command\User;
 
-use App\Domain\IdentityAccess\Identity\Entity\Email;
-use App\Domain\IdentityAccess\Identity\Exception\InvalidConfirmationTokenException;
-use App\Domain\IdentityAccess\Identity\Exception\UserActivationException;
-use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
-use App\Domain\IdentityAccess\Identity\Exception\UserPropertyException;
-use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
+use App\Domain\IdentityAccess\Identity\{
+    Exception\InvalidConfirmationTokenException,
+    Exception\UserActivationException,
+    Exception\UserNotFoundException,
+    Exception\UserPropertyException,
+    Repository\UserRepositoryInterface,
+    ValueObject\Email};
+use App\Domain\Shared\Exception\DateTimeException;
+use App\Domain\Shared\ValueObject\DateTime;
 
 class EmailRegistrationConfirmationHandler
 {
@@ -26,6 +29,7 @@ class EmailRegistrationConfirmationHandler
 
     /**
      * @param EmailRegistrationConfirmationCommand $command
+     * @throws DateTimeException
      * @throws InvalidConfirmationTokenException
      * @throws UserActivationException
      * @throws UserNotFoundException
@@ -34,7 +38,7 @@ class EmailRegistrationConfirmationHandler
     public function handle(EmailRegistrationConfirmationCommand $command): void
     {
         $user = $this->repository->userOfEmail(Email::fromString($command->email));
-        $user->confirmRegistrationByEmail($command->token, new \DateTimeImmutable());
+        $user->confirmRegistrationByEmail($command->token, DateTime::now());
 
         $this->repository->add($user);
     }

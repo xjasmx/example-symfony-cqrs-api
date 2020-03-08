@@ -46,6 +46,10 @@ services:
         tags:
             - { name: 'kernel.event_listener', event: 'kernel.exception' }
 
+    App\Infrastructure\Share\Event\Subscriber\JsonBodyParserSubscriber:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.request', method: 'onKernelRequest', priority: 100 }
+
 #    App\Infrastructure\Share\Subscriber\JsonRequestContentListener:
 #        tags:
 #            - { name: 'kernel.event_listener', event: 'kernel.request' }
