@@ -4,40 +4,39 @@ declare(strict_types=1);
 
 namespace App\Application\IdentityAccess\Identity\Command\User;
 
-use App\Domain\IdentityAccess\Identity\Entity\Name;
-use App\Domain\IdentityAccess\Identity\Entity\User;
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\Exception\UserAlreadyExistException;
-use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
-use App\Domain\IdentityAccess\Identity\Service\PasswordHasherInterface;
-use App\Domain\IdentityAccess\Identity\Specification\UserUniqueIdSpecificationInterface;
+use App\Domain\IdentityAccess\Identity\{Repository\UserRepositoryInterface,
+    Service\PasswordHasherInterface,
+    Service\UserUniquenessCheckerByIdInterface,
+    User,
+    ValueObject\Name,
+    ValueObject\UserId};
 
 class CreateUserHandler
 {
     private UserRepositoryInterface $repository;
     private PasswordHasherInterface $hasher;
-    private UserUniqueIdSpecificationInterface $uniqueIdSpecification;
+    private UserUniquenessCheckerByIdInterface $checkerById;
 
     /**
      * CreateUserHandler constructor.
      * @param UserRepositoryInterface $repository
-     * @param UserUniqueIdSpecificationInterface $uniqueIdSpecification
+     * @param UserUniquenessCheckerByIdInterface $checkerById
      * @param PasswordHasherInterface $hasher
      */
     public function __construct(
         UserRepositoryInterface $repository,
-        UserUniqueIdSpecificationInterface $uniqueIdSpecification,
+        UserUniquenessCheckerByIdInterface $checkerById,
         PasswordHasherInterface $hasher
     ) {
         $this->repository = $repository;
         $this->hasher = $hasher;
-        $this->uniqueIdSpecification = $uniqueIdSpecification;
+        $this->checkerById = $checkerById;
     }
 
     /**
      * @param CreateUserCommand $command
      * @return UserId
-     * @throws UserAlreadyExistException
+     * @throws \Exception
      */
     public function handle(CreateUserCommand $command): UserId
     {
@@ -45,8 +44,7 @@ class CreateUserHandler
             $userId = $this->repository->nextIdentity(),
             Name::fromString($command->firstName, $command->lastName),
             $this->hasher->hash($command->password),
-            new \DateTimeImmutable(),
-            $this->uniqueIdSpecification
+            $this->checkerById
         );
 
         $this->repository->add($user);

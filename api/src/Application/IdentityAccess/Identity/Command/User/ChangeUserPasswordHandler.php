@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Application\IdentityAccess\Identity\Command\User;
 
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
-use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
-use App\Domain\IdentityAccess\Identity\Service\PasswordHasherInterface;
+use App\Domain\IdentityAccess\Identity\{
+    Exception\UserNotFoundException,
+    Repository\UserRepositoryInterface,
+    Service\PasswordHasherInterface,
+    ValueObject\UserId
+};
 
 class ChangeUserPasswordHandler
 {
@@ -27,6 +29,7 @@ class ChangeUserPasswordHandler
 
     /**
      * @param ChangeUserPasswordCommand $command
+     * @throws UserNotFoundException
      * @throws UserNotFoundException
      */
     public function handle(ChangeUserPasswordCommand $command): void

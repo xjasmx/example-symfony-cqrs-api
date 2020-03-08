@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Access\Authorization\OAuth;
 
-use App\Domain\IdentityAccess\Identity\Entity\Email;
-use App\Domain\IdentityAccess\Identity\Entity\Status;
-use App\Domain\IdentityAccess\Identity\ReadModel\UserQueryRepositoryInterface;
+use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
+use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
 use App\Domain\IdentityAccess\Identity\Service\PasswordHasherInterface;
-use App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentityOAuth;
+use App\Domain\IdentityAccess\Identity\ValueObject\Email;
+use App\Infrastructure\IdentityAccess\Access\Authorization\UserIdentityById;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Trikoder\Bundle\OAuth2Bundle\Event\UserResolveEvent;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Events;
 
 final class UserResolver implements EventSubscriberInterface
 {
-    private UserQueryRepositoryInterface $repository;
+    private UserRepositoryInterface $repository;
     private PasswordHasherInterface $hasher;
 
     /**
      * UserResolver constructor.
-     * @param UserQueryRepositoryInterface $repository
+     * @param UserRepositoryInterface $repository
      * @param PasswordHasherInterface $hasher
      */
-    public function __construct(UserQueryRepositoryInterface $repository, PasswordHasherInterface $hasher)
+    public function __construct(UserRepositoryInterface $repository, PasswordHasherInterface $hasher)
     {
         $this->repository = $repository;
         $this->hasher = $hasher;
@@ -41,12 +41,13 @@ final class UserResolver implements EventSubscriberInterface
 
     /**
      * @param UserResolveEvent $event
+     * @throws UserNotFoundException
      */
     public function onUserResolve(UserResolveEvent $event): void
     {
         $user = $this->repository->userOfEmail(Email::fromString($event->getUsername()));
 
-        if ($user->getStatus() === Status::WAIT) {
+        if ($user->getStatus()->isWait()) {
             return;
         }
 
@@ -59,7 +60,7 @@ final class UserResolver implements EventSubscriberInterface
         }
 
         $event->setUser(
-            new UserIdentityOAuth($user->getId(), $password, $user->getStatus())
+            new UserIdentityById($user->getId(), $password, $user->getStatus())
         );
     }
 }

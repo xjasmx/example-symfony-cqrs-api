@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Identity\Persistence\DoctrineType;
 
-use App\Domain\IdentityAccess\Identity\Entity\Email;
+use App\Domain\IdentityAccess\Identity\ValueObject\Email;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
 
 class EmailType extends StringType
 {
-    public const NAME = 'user_user_email';
-
     /**
      * @param mixed $value
      * @param AbstractPlatform $platform
@@ -31,14 +29,6 @@ class EmailType extends StringType
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         return !empty($value) ? Email::fromString($value) : null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return self::NAME;
     }
 
     /**

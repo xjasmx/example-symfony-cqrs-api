@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\IdentityAccess\Identity\Persistence\Repository;
 
-use App\Domain\IdentityAccess\Identity\Entity\Email;
-use App\Domain\IdentityAccess\Identity\Entity\User;
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
-use App\Domain\IdentityAccess\Identity\Repository\UserRepositoryInterface;
-use App\Domain\Shared\Event\AggregateRoot;
-use App\Domain\Shared\Event\EventDispatcherInterface;
+use App\Domain\IdentityAccess\Identity\{
+    User,
+    ValueObject\Email,
+    ValueObject\UserId,
+    Exception\UserNotFoundException,
+    Repository\UserRepositoryInterface
+};
+use App\Domain\Shared\Event\{AggregateRoot, EventDispatcherInterface};
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
-use Exception;
 use Ramsey\Uuid\Uuid;
 
 final class DoctrineUserRepository implements UserRepositoryInterface
@@ -53,12 +53,7 @@ final class DoctrineUserRepository implements UserRepositoryInterface
      */
     public function userOfId(UserId $userId): User
     {
-        if (!$user = $this->repository->find((string)$userId)) {
-            throw new UserNotFoundException();
-        }
-
-        /** @var User $user */
-        return $user;
+        return $this->userOf('id', $userId);
     }
 
     /**
@@ -68,20 +63,31 @@ final class DoctrineUserRepository implements UserRepositoryInterface
      */
     public function userOfEmail(Email $email): User
     {
-        if (!$user = $this->repository->findOneBy(['email' => (string)$email])) {
+        return $this->userOf('email', $email);
+    }
+
+    /**
+     * @return UserId
+     * @throws \Exception
+     */
+    public function nextIdentity(): UserId
+    {
+        return UserId::fromString(Uuid::uuid4()->toString());
+    }
+
+    /**
+     * @param string $criterion
+     * @param object $search
+     * @return User
+     * @throws UserNotFoundException
+     */
+    private function userOf(string $criterion, object $search): User
+    {
+        if (!$user = $this->repository->findOneBy([$criterion => (string)$search])) {
             throw new UserNotFoundException();
         }
 
         /** @var User $user */
         return $user;
-    }
-
-    /**
-     * @return UserId
-     * @throws Exception
-     */
-    public function nextIdentity(): UserId
-    {
-        return UserId::fromString(Uuid::uuid4()->toString());
     }
 }

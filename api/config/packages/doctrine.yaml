@@ -10,6 +10,9 @@ doctrine:
             collate:
 
         types:
+            #Shared
+            datetime_immutable: 'App\Infrastructure\Share\Persistence\DoctrineType\DateTimeType'
+
             #User
             user_user_id: 'App\Infrastructure\IdentityAccess\Identity\Persistence\DoctrineType\UserIdType'
             user_user_email: 'App\Infrastructure\IdentityAccess\Identity\Persistence\DoctrineType\EmailType'

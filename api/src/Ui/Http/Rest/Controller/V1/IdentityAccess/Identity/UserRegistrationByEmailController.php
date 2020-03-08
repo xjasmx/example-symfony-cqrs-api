@@ -10,9 +10,9 @@ use App\Application\IdentityAccess\Identity\Command\User\RegisterUserByEmailComm
 use App\Application\IdentityAccess\Identity\Command\User\RegisterUserByEmailHandler;
 use App\Domain\IdentityAccess\Identity\Exception\InvalidConfirmationTokenException;
 use App\Domain\IdentityAccess\Identity\Exception\UserActivationException;
-use App\Domain\IdentityAccess\Identity\Exception\UserAlreadyExistException;
 use App\Domain\IdentityAccess\Identity\Exception\UserNotFoundException;
 use App\Domain\IdentityAccess\Identity\Exception\UserPropertyException;
+use App\Domain\Shared\Exception\DateTimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,6 +69,7 @@ class UserRegistrationByEmailController extends AbstractController
      * @throws UserActivationException
      * @throws UserPropertyException
      * @throws UserNotFoundException
+     * @throws DateTimeException
      */
     public function confirm(Request $request, EmailRegistrationConfirmationHandler $handler): JsonResponse
     {

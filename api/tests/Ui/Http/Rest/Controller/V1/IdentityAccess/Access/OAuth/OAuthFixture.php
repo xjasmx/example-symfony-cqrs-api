@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Tests\Ui\Http\Rest\Controller\V1\IdentityAccess\Access\OAuth;
 
-use App\Domain\IdentityAccess\Identity\Entity\ConfirmationToken;
-use App\Domain\IdentityAccess\Identity\Entity\Email;
-use App\Domain\IdentityAccess\Identity\Entity\Name;
-use App\Domain\IdentityAccess\Identity\Entity\User;
-use App\Domain\IdentityAccess\Identity\Entity\UserId;
-use App\Domain\IdentityAccess\Identity\Specification\UserUniqueEmailSpecificationInterface;
+use App\Domain\IdentityAccess\Identity\Service\UserUniquenessCheckerByEmailInterface;
+use App\Domain\IdentityAccess\Identity\User;
+use App\Domain\IdentityAccess\Identity\ValueObject\ConfirmationToken;
+use App\Domain\IdentityAccess\Identity\ValueObject\Email;
+use App\Domain\IdentityAccess\Identity\ValueObject\Name;
+use App\Domain\IdentityAccess\Identity\ValueObject\UserId;
+use App\Domain\Shared\ValueObject\DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Trikoder\Bundle\OAuth2Bundle\Model\Client;
 use Trikoder\Bundle\OAuth2Bundle\Model\Grant;
 use Trikoder\Bundle\OAuth2Bundle\OAuth2Grants;
-use DateTimeImmutable;
 use Exception;
 
 class OAuthFixture extends Fixture
@@ -27,11 +27,11 @@ class OAuthFixture extends Fixture
     public const USER_FIRST_NAME = 'OAuth';
     public const USER_LAST_NAME = 'User';
 
-    private UserUniqueEmailSpecificationInterface $uniqueEmailSpecification;
+    private UserUniquenessCheckerByEmailInterface $checkerByEmail;
 
-    public function __construct(UserUniqueEmailSpecificationInterface $uniqueEmailSpecification)
+    public function __construct(UserUniquenessCheckerByEmailInterface $checkerByEmail)
     {
-        $this->uniqueEmailSpecification = $uniqueEmailSpecification;
+        $this->checkerByEmail = $checkerByEmail;
     }
 
     /**
@@ -71,12 +71,11 @@ class OAuthFixture extends Fixture
             Name::fromString(self::USER_FIRST_NAME, self::USER_LAST_NAME),
             Email::fromString(self::USER_EMAIL),
             '$2y$12$qwnND33o8DGWvFoepotSju7eTAQ6gzLD/zy6W8NCVtiHPbkybz.w6', // 'password'
-            new ConfirmationToken('confirmHash', new \DateTimeImmutable('+1 day')),
-            new \DateTimeImmutable(),
-            $this->uniqueEmailSpecification
+            new ConfirmationToken('confirmHash', DateTime::fromString('+1 day')),
+            $this->checkerByEmail
         );
 
-        $user->confirmRegistrationByEmail('confirmHash', new DateTimeImmutable());
+        $user->confirmRegistrationByEmail('confirmHash', DateTime::now());
 
         return $user;
     }
