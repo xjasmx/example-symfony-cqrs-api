@@ -1,9 +1,11 @@
-Symfony 5 CQRS/DDD example
+Sample CQRS REST API application that uses Symfony 5 as a server platform and works with php7.4 implementation using raw SQL and DDD using Clean Architecture. UI implementation using Vue.js
 =====================
 
-A simple video management application for training, based on Symfony 5, php 7.4 and implemented in CQRS as part of the tactical DDD approach
+![build](https://github.com/xjasmx/symfony-ddd-example/workflows/ci/badge.svg?branch=master)
 
-![ci](https://github.com/xjasmx/symfony-ddd-example/workflows/ci/badge.svg?branch=master)
+## Architecture [Clean Architecture](http://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+
+![projects_dependencies](docs/clean_architecture.png)
 
 ## Stack
 
